@@ -153,3 +153,4 @@ cython_debug/
 
 # Project files and folder
 data/
+sound_recognizer
