@@ -4,4 +4,3 @@ sqlalchemy
 librosa
 matplotlib
 pytest
-sqlite3
