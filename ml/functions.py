@@ -192,3 +192,7 @@ def extract_features(y, sr):
         features_dict.update(f)
 
     return features_dict
+
+# TODO: Création de deux fonctions différentes pour : 
+#   1) calcul des mean_label et mean_values (exemple : get_cens())
+#   2) création de result avec np.mean() et np.var() (exemple : get_spectral_features())
