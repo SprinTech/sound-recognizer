@@ -153,4 +153,5 @@ cython_debug/
 
 # Project files and folder
 data/
-sound_recognizer
+*/sound_recognizer.db
+*/config.py
