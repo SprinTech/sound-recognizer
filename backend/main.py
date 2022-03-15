@@ -1,14 +1,18 @@
 from flask import Flask
-from flask_sqlalchemy import SQLAlchemy
 from config import Config
 
-db = SQLAlchemy()
+from routes.auth import auth_blueprint
+from routes.user import user_blueprint
 
+app = Flask(__name__)
+app.config.from_object(Config)
 
-def create_app():
-    """Setup Flask application"""
-    app = Flask(__name__)
-    app.config.from_object(Config)
-    db.init_app(app)
+app.register_blueprint(auth_blueprint, url_prefix='/api/v1')
+app.register_blueprint(user_blueprint, url_prefix='/api/v1')
 
-    return app
+@app.route("/api/v1/")
+def hello():
+    return "Hello, World"
+
+if __name__ == "__main__":
+    app.run(debug=True)
