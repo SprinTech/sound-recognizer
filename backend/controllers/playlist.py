@@ -14,7 +14,7 @@ def get_user_information(session):
 
 def get_user_playlist(session, limit=10):
     """
-    Check 
+    Connect to user playlist in Spotify and 
     """
     url = 'https://api.spotify.com/v1/me/playlists'
     offset = 0
@@ -37,3 +37,4 @@ def get_user_playlist(session, limit=10):
     return payload
 
 def get_user_tracks(session, limit=10):
+    pass

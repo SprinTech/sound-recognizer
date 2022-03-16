@@ -4,15 +4,12 @@ import time
 import base64
 import requests
 
-from main import app
-
 def create_state_key(size):
+    """Generate random chain of strings"""
     return ''.join(rand.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(size))
 
-def get_token(code, state):
-    redirect_uri = app.config["REDIRECT_URI"]
-    client_credential = app.config["AUTHORIZATION"]
-    client_credential_b64 = base64.b64encode(client_credential.encode())
+def get_token(code, state, redirect_uri, authorization):
+    client_credential_b64 = base64.b64encode(authorization.encode())
     
     if not state:
         return "Error, state missing..."
@@ -32,9 +29,8 @@ def get_token(code, state):
         response = requests.post(token_url, headers=headers, data=body)
         return response.json()
 
-def get_refresh_token(refresh_token):
-    client_credential = app.config["AUTHORIZATION"]
-    client_credential_b64 = base64.b64encode(client_credential.encode())
+def get_refresh_token(refresh_token, authorization):
+    client_credential_b64 = base64.b64encode(authorization.encode())
     
     token_url = 'https://accounts.spotify.com/api/token'
     headers =  {

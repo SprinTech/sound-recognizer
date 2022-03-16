@@ -5,6 +5,7 @@ sys.path.append("..")
 
 from controllers.auth import create_state_key, get_token
 from controllers.playlist import get_user_information
+from controllers.user import create_user
 
 auth_blueprint = Blueprint('auth', __name__, template_folder="templates")
 
@@ -38,8 +39,9 @@ def authorize():
 def callback():
     code = request.args.get("code")
     state = request.args.get("state")
-
-    payload = get_token(code, state)
+    redirect_uri = current_app.config["REDIRECT_URI"]
+    client_credential = current_app.config["AUTHORIZATION"]
+    payload = get_token(code, state, redirect_uri, client_credential)
     
     if payload is not None:
         session["access_token"] = payload["access_token"]
@@ -47,5 +49,6 @@ def callback():
         session["token_expiration"] = payload["expires_in"]
     
     current_user = get_user_information(session)
+    create_user(current_user)
     session["user_id"] = current_user["id"]
     return session["user_id"]
