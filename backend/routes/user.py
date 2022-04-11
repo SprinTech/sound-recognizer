@@ -1,23 +1,33 @@
-from flask import Blueprint, jsonify, session, jsonify
 import sys
+from fastapi import APIRouter, Request
+from fastapi.responses import JSONResponse
 
 sys.path.append("..")
-from controllers.playlist import get_user_playlist
-from controllers.user import get_users, get_user
+from config import Settings
+from controllers.playlist import get_user_playlist, get_user_songs
 
-user_blueprint = Blueprint('user', __name__, template_folder="templates")
+settings = Settings()
+router = APIRouter()
 
-@user_blueprint.route("/user/", methods=["GET"])
-def user_list():
-    user_list = get_users()
-    return jsonify(user_list)
 
-@user_blueprint.route("/user/<string:username>", methods=["GET"])
-def user_by_username(username):
-    user = get_user(username)
-    return jsonify(user)
+@router.get("/playlist/")
+async def user_playlist(request: Request):
+    access_token = request.cookies.get("access_token")
+    playlist_names = get_user_playlist(access_token)
+    return JSONResponse(playlist_names)
 
-@user_blueprint.route("/playlist/", methods=["GET"])
-def user_playlist():
-    playlist_names = get_user_playlist(session)
-    return jsonify(playlist_names)
+@router.get("/songs/")
+async def user_songs(request: Request):
+    access_token = request.cookies.get("access_token")
+    
+    # retrieve ids of user playlist
+    playlist_ids = get_user_playlist(access_token)
+    song_list = []
+    
+    for playlist in playlist_ids['items']:
+        id = playlist['id']
+        songs = get_user_songs(id, access_token)
+        song_list.append(songs)
+    
+    # return JSONResponse(song_list)
+    return song_list

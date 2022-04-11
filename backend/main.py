@@ -1,31 +1,43 @@
-import os
-from flask import Flask
-from config import Config
+from fastapi import FastAPI
+from fastapi.responses import RedirectResponse
+import uvicorn
 
-from routes.auth import auth_blueprint
-from routes.user import user_blueprint
-from database import db
+from config import Settings
+from routes import auth, user
 
-def create_app():
-    app = Flask(__name__)
-    app.config.from_object(Config)
-    db.init_app(app)
-    app.register_blueprint(auth_blueprint, url_prefix='/api/v1')
-    app.register_blueprint(user_blueprint, url_prefix='/api/v1')
-    
-    @app.route("/")
-    @app.route("/api/v1/")
-    def hello():
-        return "Hello, World"
+settings = Settings()
 
-    return app
+tags_metadata = [
+    {
+        "name": "Spotify",
+        "description": "Operations using Spotify API integration",
+        "externalDocs": {
+            "description": "spotify external docs",
+            "url": "https://developer.spotify.com/documentation/"
+        }
+    }
+]
+app = FastAPI(
+    title = "Sound recognizer API",
+    description = "This API allow user to get genre prediction according to Spotify music supplied to app",
+    version = "0.1",
+    openapi_tags = tags_metadata
+)
 
-def setup_database(app):
-    with app.app_context():
-        db.create_all()
+app.include_router(auth.router, tags=["authentication"], prefix="/api/v1")
+app.include_router(user.router, tags=["user"], prefix="/api/v1")
+
+@app.get("/api/v1/")
+async def root():
+    return {"message": "Hello World !"}
+
+@app.get("/api/v1/logout")
+async def logout():
+    response = RedirectResponse(url="/api/v1/")
+    response.delete_cookie(key="access_token")
+    response.delete_cookie(key="refresh_token")
+    response.delete_cookie(key="token_expiration")
+    return response
 
 if __name__ == "__main__":
-    app = create_app()
-    if not os.path.isfile(app.config["SQLALCHEMY_DATABASE_URI"]):
-      setup_database(app)
-    app.run(debug=True)
+    uvicorn.run("main:app", host="127.0.0.1", port=5000, debug=True, reload=True)

@@ -1,24 +1,28 @@
-from flask import redirect, request, session, make_response, Blueprint, current_app
 import urllib.parse
 import sys
+from fastapi import APIRouter
+from fastapi.responses import RedirectResponse, JSONResponse
 sys.path.append("..")
 
 from controllers.auth import create_state_key, get_token
 from controllers.playlist import get_user_information
-from controllers.user import create_user
+# from controllers.user import create_user
+from config import Settings
 
-auth_blueprint = Blueprint('auth', __name__, template_folder="templates")
+settings = Settings()
+router = APIRouter()
 
-@auth_blueprint.route("/authorize/")
+
+@router.get("/authorize/")
 def authorize():
     """
     Request authorization from the user to access it's Spotify ressources
     """
     # Import api configs
-    client_id = current_app.config["CLIENT_ID"]
-    client_secret = current_app.config["CLIENT_SECRET"]
-    redirect_uri = current_app.config["REDIRECT_URI"]
-    scope = current_app.config["SCOPE"]
+    client_id = settings.CLIENT_ID
+    client_secret = settings.CLIENT_SECRET
+    redirect_uri = settings.REDIRECT_URI
+    scope = settings.SCOPE
     
     state = create_state_key(16)
     
@@ -32,23 +36,24 @@ def authorize():
     }
     
     encoded_params = urllib.parse.urlencode(params)
-    response = make_response(redirect(authorization_url + encoded_params))
+    response = RedirectResponse(authorization_url + encoded_params)
     return response
 
-@auth_blueprint.route("/callback/")
-def callback():
-    code = request.args.get("code")
-    state = request.args.get("state")
-    redirect_uri = current_app.config["REDIRECT_URI"]
-    client_credential = current_app.config["AUTHORIZATION"]
+@router.get("/callback/")
+async def callback(code: str, state: str):
+    redirect_uri = settings.REDIRECT_URI
+    client_credential = settings.AUTHORIZATION
     payload = get_token(code, state, redirect_uri, client_credential)
+
+    current_user = get_user_information(payload["access_token"])
+        
+    json_user =  JSONResponse(current_user)
     
     if payload is not None:
-        session["access_token"] = payload["access_token"]
-        session["refresh_token"] = payload["refresh_token"]
-        session["token_expiration"] = payload["expires_in"]
-    
-    current_user = get_user_information(session)
-    create_user(current_user)
-    session["user_id"] = current_user["id"]
-    return session["user_id"]
+        json_user.set_cookie(key="access_token", value=payload["access_token"])
+        json_user.set_cookie(key="refresh_token", value=payload["refresh_token"])
+        json_user.set_cookie(key="token_expiration", value=payload["expires_in"])
+
+    json_user.set_cookie(key="access_token", value=payload["access_token"])
+
+    return json_user
