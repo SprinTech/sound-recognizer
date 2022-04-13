@@ -155,3 +155,4 @@ cython_debug/
 data/
 */sound_recognizer.db
 */config.py
+node_modules
