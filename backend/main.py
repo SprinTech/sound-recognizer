@@ -4,6 +4,8 @@ import uvicorn
 
 from config import Settings
 from routes import auth, user
+import models
+from database import engine
 
 settings = Settings()
 
@@ -12,11 +14,14 @@ tags_metadata = [
         "name": "Spotify",
         "description": "Operations using Spotify API integration",
         "externalDocs": {
-            "description": "spotify external docs",
+            "description": "Spotify external docs",
             "url": "https://developer.spotify.com/documentation/"
         }
     }
 ]
+
+models.Base.metadata.create_all(bind=engine)
+
 app = FastAPI(
     title = "Sound recognizer API",
     description = "This API allow user to get genre prediction according to Spotify music supplied to app",
