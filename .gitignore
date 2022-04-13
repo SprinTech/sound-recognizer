@@ -2,3 +2,5 @@
 ml/data/01
 ml/data/02
 backend/data/*
+node_modules
+__pycache__

@@ -1,3 +1,5 @@
+"""extracting features from audio file."""
+
 import librosa
 import numpy as np
 
@@ -50,8 +52,8 @@ def get_cens(y, sr):
     """
 
     cens = librosa.feature.chroma_cens(y, sr=sr)
-    cens_mean_labels = [f"cen{i}_mean" for i in range(1, len(cens)+1)]
-    cens_var_labels = [f"cen{i}_var" for i in range(1, len(cens)+1)]
+    cens_mean_labels = [f"cen{i}_mean" for i in range(1, len(cens) + 1)]
+    cens_var_labels = [f"cen{i}_var" for i in range(1, len(cens) + 1)]
     cens_means = [np.mean(cen) for cen in cens]
     cens_vars = [np.var(cen) for cen in cens]
     labels = cens_mean_labels + cens_var_labels
@@ -62,7 +64,7 @@ def get_cens(y, sr):
 
 
 def get_stfts(y, sr):
-    """Get normalized energy of the audio file
+    """Get normalized energy of the audio file.
 
     Args:
         y (np.ndArray): audio time series
@@ -73,8 +75,8 @@ def get_stfts(y, sr):
     """
 
     stfts = librosa.feature.chroma_stft(y, sr=sr)
-    stfts_mean_labels = [f"stft{i}_mean" for i in range(1, len(stfts)+1)]
-    stfts_var_labels = [f"stft{i}_var" for i in range(1, len(stfts)+1)]
+    stfts_mean_labels = [f"stft{i}_mean" for i in range(1, len(stfts) + 1)]
+    stfts_var_labels = [f"stft{i}_var" for i in range(1, len(stfts) + 1)]
     stfts_means = [np.mean(stft) for stft in stfts]
     stfts_vars = [np.var(stft) for stft in stfts]
     labels = stfts_mean_labels + stfts_var_labels
@@ -122,12 +124,13 @@ def get_spectral_features(y, sr):
         "bandwidth_var": np.var(spectral_bandwidth),
         "contrast_mean": np.mean(spectral_contrast),
         "contrast_var": np.var(spectral_contrast),
-        }
+    }
+
     return results
 
 
 def get_rms(y):
-    """Get tempo of the audio file (in BPM).
+    """Get rms from the audio file (in BPM).
 
     Args:
         y (np.ndArray): audio time series
@@ -145,23 +148,44 @@ def get_rms(y):
 
 
 def get_mfccs(y, sr):
-    """Get tempo of the audio file (in BPM).
+    """Get Mel-Frequency Cepstral Coefficients of the audio file.
 
     Args:
         y (np.ndArray): audio time series
         sr (int): sampling rate
 
     Returns:
-        dict: tempo key-value pair
+        dict: means and variances for each feature
     """
 
     mfccs = librosa.feature.mfcc(y, sr=sr)
-    mfccs_mean_labels = [f"mfcc{i}_mean" for i in range(1, len(mfccs)+1)]
-    mfccs_var_labels = [f"mfcc{i}_var" for i in range(1, len(mfccs)+1)]
+    mfccs_mean_labels = [f"mfcc{i}_mean" for i in range(1, len(mfccs) + 1)]
+    mfccs_var_labels = [f"mfcc{i}_var" for i in range(1, len(mfccs) + 1)]
     mfccs_means = [np.mean(mfcc) for mfcc in mfccs]
     mfccs_vars = [np.var(mfcc) for mfcc in mfccs]
     labels = mfccs_mean_labels + mfccs_var_labels
     values = mfccs_means + mfccs_vars
+    results = dict(zip(labels, values))
+    return results
+    
+
+def get_tonnetzs(y):
+    """Get tonnetzs of the audio file.
+
+    Args:
+        y (np.ndArray): audio time series
+
+    Returns:
+        dict: means and variances for each feature
+    """
+
+    tonnetzs = librosa.feature.tonnetz(y)
+    tonnetzs_mean_labels = [f"tonnetz{i}_mean" for i in range(len(tonnetzs))]
+    tonnetzs_var_labels = [f"tonnetz{i}_var" for i in range(len(tonnetzs))]
+    tonnetzs_means = [np.mean(tonnetz) for tonnetz in tonnetzs]
+    tonnetzs_vars = [np.var(tonnetz) for tonnetz in tonnetzs]
+    labels = tonnetzs_mean_labels + tonnetzs_var_labels
+    values = tonnetzs_means + tonnetzs_vars
     results = dict(zip(labels, values))
     return results
 
@@ -185,14 +209,28 @@ def extract_features(y, sr):
         get_zero_crossing_rate(y),
         get_spectral_features(y, sr),
         get_stfts(y, sr),
-        get_cens(y, sr)
+        get_cens(y, sr),
+        get_mfccs(y, sr),
+        get_tonnetzs(y)
     ]
 
     for f in features:
         features_dict.update(f)
-
+        
     return features_dict
 
-# TODO: Création de deux fonctions différentes pour : 
+# TODO: Création de deux fonctions différentes pour :
 #   1) calcul des mean_label et mean_values (exemple : get_cens())
 #   2) création de result avec np.mean() et np.var() (exemple : get_spectral_features())
+
+
+# def compute_values(name, features):
+#     mean_labels = [f"{name}_{i}_mean" for i in range(len(features))]
+#     var_labels = [f"{name}_{i}_var" for i in range(len(features))]
+#     means = [np.mean(feature) for feature in features]
+#     vars = [np.var(feature) for feature in features]
+#     labels = mean_labels + var_labels
+#     values = means + vars
+#     results = dict(zip(labels, values))
+
+#     return results
