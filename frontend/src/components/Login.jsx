@@ -1,7 +1,7 @@
 import React from 'react';
 
-const CLIENT_ID = "+++++++++++++++++++++++++++++"
-const REDIRECT_URI = "http://localhost:3000"
+const CLIENT_ID = "a9284e79d32640229c58154c0cc822ba"
+const REDIRECT_URI = "http://127.0.0.1:5000/api/v1/callback/"
 const AUTH_ENDPOINT = "https://accounts.spotify.com/authorize"
 const RESPONSE_TYPE = "token"
 
