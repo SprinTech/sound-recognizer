@@ -4,11 +4,12 @@ import Dashboard from './Dashboard';
 import SideMenu from './SideMenu';
 import { Col, Container, Row } from 'react-bootstrap';
 
+
 const App = () => {
     const [isLogged, setIsLogged] = useState(false)
     return (
         <div>
-            <NavBarComponent isLogged={isLogged}/>
+            <NavBarComponent isLogged={isLogged} />
             <Container >
             <h1>This is my React app!</h1>
                 <Row>
