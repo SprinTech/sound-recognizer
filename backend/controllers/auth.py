@@ -47,9 +47,9 @@ def get_refresh_token(refresh_token, authorization):
     return response.json()
 
 def check_token_status(session):
-    if time.time() > session["token_expiration"]:
-        payload = get_refresh_token(session["refresh_token"])
-        
-        if payload is not None:
-            session["access_token"] = payload["access_token"]
-            session["token_expiration"] = time.time() + payload["expires_in"]
+        if time.time() > session["token_expiration"]:
+            payload = get_refresh_token(session["refresh_token"])
+            
+            if payload is not None:
+                session["access_token"] = payload["access_token"]
+                session["token_expiration"] = time.time() + payload["expires_in"]

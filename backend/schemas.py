@@ -1,14 +1,19 @@
 from pydantic import BaseModel
 from datetime import datetime
 
-class UserBase(BaseModel):
+class UserIn(BaseModel):
     username: str
     
-class UserCreate(UserBase):
-    refresh_token: str
+    class Config:
+        orm_mode=True
+        
+class UserCreate(UserIn):
+    pass
+    # refresh_token: str
     
-class User(UserBase):
+class UserOut(UserIn):
     id: int
-    created_at: datetime.datetime
-    updated_at: datetime.datetime
+    created_at: datetime = None
+    updated_at: datetime = None
+    last_login: datetime = None
     

@@ -6,7 +6,6 @@ sys.path.append("..")
 
 from controllers.auth import create_state_key, get_token
 from controllers.playlist import get_user_information
-# from controllers.user import create_user
 from config import Settings
 
 settings = Settings()

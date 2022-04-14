@@ -3,7 +3,7 @@ from fastapi.responses import RedirectResponse
 import uvicorn
 
 from config import Settings
-from routes import auth, user
+from routes import auth, user, playlist
 import models
 from database import engine
 
@@ -30,6 +30,7 @@ app = FastAPI(
 )
 
 app.include_router(auth.router, tags=["authentication"], prefix="/api/v1")
+app.include_router(playlist.router, tags=["playlist"], prefix="/api/v1")
 app.include_router(user.router, tags=["user"], prefix="/api/v1")
 
 @app.get("/api/v1/")
